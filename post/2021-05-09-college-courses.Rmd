@@ -1,0 +1,22 @@
+---
+title: College Courses
+author: ''
+date: '2021-05-09'
+slug: college-courses
+categories: []
+tags: []
+description: ''
+---
+
+Is this where you can type to add a blog post? I guess we'll see!
+
+[Link to project 1](/project/project1/)
+
+[Link to google](https://www.google.com)
+
+```{R}
+2 + 2
+```
+
+![meee](/post/2021-05-09-college-courses_files/IMG_8945.jpg)
+

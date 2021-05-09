@@ -1,0 +1,265 @@
+---
+title: "Project 2"
+author: "Miranda McLaughlin (mmm7798)"
+output:
+  html_document:
+    toc: true
+    toc_float:
+      collapsed: false
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, eval = TRUE, fig.align = "center", 
+    warning = F, message = F, tidy = TRUE, tidy.opts = list(width.cutoff = 60), 
+    R.options = list(max.print = 100))
+
+
+
+class_diag <- function(probs,truth){ 
+  #CONFUSION MATRIX: CALCULATE ACCURACY, TPR, TNR, PPV 
+  if(is.character(truth)==TRUE) truth<-as.factor(truth) 
+  if(is.numeric(truth)==FALSE & is.logical(truth)==FALSE) truth<-as.numeric(truth)-1 
+  tab<-table(factor(probs>.5,levels=c("FALSE","TRUE")),factor(truth, levels=c(0,1))) 
+  acc=sum(diag(tab))/sum(tab) 
+  sens=tab[2,2]/colSums(tab)[2] 
+  spec=tab[1,1]/colSums(tab)[1] 
+  ppv=tab[2,2]/rowSums(tab)[2] 
+  
+#CALCULATE EXACT AUC 
+  ord<-order(probs, decreasing=TRUE) 
+  probs <- probs[ord]; truth <- truth[ord] 
+  TPR=cumsum(truth)/max(1,sum(truth))  
+  FPR=cumsum(!truth)/max(1,sum(!truth)) 
+  dup <-c(probs[-1]>=probs[-length(probs)], FALSE) 
+  TPR <-c(0,TPR[!dup],1); FPR<-c(0,FPR[!dup],1) 
+  n <- length(TPR) 
+  auc <- sum( ((TPR[-1]+TPR[-n])/2) * (FPR[-1]-FPR[-n])) 
+  data.frame(acc,sens,spec,ppv,auc) 
+}
+```
+
+
+## *Data on Austin Coffee Shops*
+
+# Introduction
+
+I found data that reports on the yelp ratings of all of the coffee shops in Austin. The data accounts for the name of the shop, the number of total yelp reviews it has, its overall rating (out of 5 stars), and things that may have factored into its rating such as the quality of the coffee, the price, and the location, to name a few. These considerations are shown as proportions to how important it is to the overall rating. In the first section of code I also added in a column that will later be used as my binary variable. I made it so that coffee shops with a rating less than 4.2 stars would be considered a "low" rank, while the coffee shops that had a rating of 4.2 or greater were considered "high" ranking. I also took out a column called "vibe", which was one of the factors, because it seems like a very subjective variable and it had a lot of NAs. There is a total of 78 observations and 16 variables.
+
+
+
+
+```{R}
+library(tidyverse)
+
+coffee_data <- read_csv("Coffee Data.csv")
+
+coffee_data %>% head()
+
+coffee_data <- coffee_data %>% mutate(rank=ifelse(rating<4.2,"low","high")) %>% select(-vibe)
+coffee_data <- coffee_data %>% mutate()
+```
+
+
+# 1: MANOVA, ANOVA, and T-Tests
+```{R}
+#MANOVA test
+man1<-manova(cbind(num_reviews, rating)~rank, data=coffee_data)
+summary(man1)
+
+#Univariate ANOVA test
+summary.aov(man1)
+coffee_data %>% group_by(rank) %>% summarize(mean(rating), mean(num_reviews))
+
+#Post-hoc t-test
+pairwise.t.test(coffee_data$num_reviews, coffee_data$rank, p.adj = "none")
+pairwise.t.test(coffee_data$rating, coffee_data$rank, p.adj = "none")
+
+
+1-0.95^5
+(1-0.95^5)/5
+
+```
+*I ran one MANOVA test, 2 univariate ANOVA tests, and 2 t-tests, for a total of 5 tests. The probability of getting a type I error is about 0.05, so a bonferroni correction will adjust the p-values accordingly. After adjusting, the significance level was 0.045. Even still, all of the p-values were significant, and these were the results:* 
+
+*A one-way MANOVA was conducted to determine the effect of rank (high or low) on two dependent variables (number of ratings and overall rating). Significant differences were found among the two rankings for at least one of the dependent variables-- Pillai trace= .671 pseudo, F= 76.549, p < 0.0001.*
+
+*Univariate ANOVAs for each dependent variable were conducted as follow-up tests to the MANOVA, using the Bonferroni method for controlling Type I error rates for multiple comparisons. The univariate ANOVAs for number of reviews and overall rating were also significant, F= 9.232 and p= 0.0033, and F= 155.14, p < 0.0001, respectively.*
+*Post hoc analysis was performed conducting pairwise comparisons to determine which rank differed in number of reviews and rating. Both rankings were found to differ significantly from each other in terms of number of reviews and rating after adjusting for multiple comparisons (bonferroni α=.0.226/5=0.045).*
+
+*Some assumptions that may have not been met are homogeneity and no multicollinearity. I would actually imagine that multicollinearity definitely was not met since I created my categorical variable (rank) from a numberic variable in the dataset (rating).*
+
+
+# 2: Running a Correlation Test
+```{R}
+coffee_data %>% summarize(cor(rating, num_reviews, use = "pair"))
+cor.test(coffee_data$rating, coffee_data$num_reviews)
+
+coffee_data %>% ggplot(aes(rating, num_reviews)) + geom_point()
+```
+*H0: the number of reviews has no effect on the overall rating of a coffee shop.*
+
+*H1: the number of reviews does have an effect on the overall rating of a coffee shop.*
+
+*A correlation test was performed to determine whether or not number of reviews affects the Yelp rating received for a coffee shop. The results showed a correlation of -0.4 and a p-value of 0.00027, which means that we can reject the null hypothesis and say that the number of reviews does have an effect on the overall rating of a coffee shop. Based on the correlation and the plot, we can see that the more reviews a coffee shop has, the lower its rating will be and vice versa. This makes sense because the more reviews there are, the more ratings there are being factored into the coffee shop's overall rating.*
+
+
+# 3: Linear Regression
+```{R}
+library(tidyverse)
+library(lmtest)
+library(sandwich)
+#Centering the data
+mean_rating <- coffee_data$rating - mean(coffee_data$rating, na.rm = T)
+mean_coffee <- coffee_data$coffee - mean(coffee_data$coffee, na.rm = T)
+mean_food <- coffee_data$food - mean(coffee_data$food, na.rm = T)
+
+#Multiple Regression
+multi_lm <- lm(mean_rating ~ mean_coffee + mean_food, data = coffee_data)
+summary(multi_lm)
+
+#Plots of the regressions
+multi_lm %>% ggplot(aes(mean_rating, mean_coffee)) + geom_point() + geom_smooth(method="lm")
+
+#Recomputing with robust SEs
+coeftest(multi_lm, vcov = vcovHC(multi_lm))
+```
+*I ran a multiple regression test showing the interaction of rating on coffee scores and food scores. When looking at them together, the results show that the mean rating when the coffee and food scores are 0 is also 0. However, there is a difference when looking at the coffee and food estimates. Together, for every 1 star increase in rating, there is a 0.195 increase in coffee rating (out of 1), and a 0.062 increase in food rating (out of 1). The adjusted R squared shows that 0% of variability in our outcomes are explained.*
+
+
+# 4: Linear Regression + Bootstrapping
+```{R}
+#Multiple Regression
+multi_lm <- lm(mean_rating ~ mean_coffee + mean_food, data = coffee_data)
+summary(multi_lm)
+
+#bootstrapping
+multi_lm <- lm(mean_rating ~ mean_coffee + mean_food, data = coffee_data)
+resids<-multi_lm$residuals   
+fitted<-multi_lm$fitted.values  
+
+resid_resamp<-replicate(5000,{    
+  new_resids<-sample(resids,replace=TRUE)   
+  coffee_data$new_y<-fitted+new_resids     
+  multi_lm<-lm(new_y ~ mean_coffee + mean_food, data = coffee_data)     
+  coef(multi_lm)
+  })
+
+resid_resamp%>%t%>%as.data.frame%>%summarize_all(sd)
+
+```
+*When comparing the robust SEs to the bootstrapped SEs, there is a slight difference. The bootstrapped SEs have a standard error of 0.039 (vs 0.041) for the intercept, 0.190 for mean_coffee (vs 0.261), and 0.164 for mean_food (vs 0.215).*
+
+# 5: Logistic Regression
+```{R}
+data<- coffee_data %>% mutate(y=ifelse(rank=="high",1,0)) 
+head(data)
+
+logreg<-glm(y~num_reviews + service,data=data,family=binomial(link="logit"))
+coeftest(logreg)
+exp(coef(logreg))
+
+prob <- predict(logreg,type="response")
+predicted <- ifelse(prob>.5,"high","low")
+
+#Confusion matrix
+table(truth=coffee_data$rank, prediction=predicted)%>%addmargins
+
+#Accuracy
+(34+28)/78
+#sensitivity
+34/41
+#specificity
+28/37
+#precision
+34/43
+
+#density plot
+coffee_data$logit<-predict(logreg)
+ggplot(coffee_data, aes(logit, fill=rank))+geom_density(alpha=.3)+
+  geom_vline(xintercept=0,lty=2)
+
+#roc curve
+library(plotROC)
+ROCplot<-ggplot(coffee_data)+geom_roc(aes(d=rank,m=num_reviews), n.cuts=0) 
+ROCplot
+calc_auc(ROCplot)
+```
+*I made a logistic regression model to predict rank from number of ratings and the coffee shop's service score (out of 1). The p-values were significant for the number of reviews and for the service. For a shop with 0 reviews and a service rating of zero, the odds that the rank will be high is 0.559. for every increase in the number of reviews, the odds that the rank= high goes up by a factor of 0.971. And for every increase in service rating, the odds that the rank is high goes up by a factor of 5737.04. This is a bit excessive because the service rating does not go higher than 1, but that's still a pretty significant increase.*
+
+*The confusion matrix shows that the accuracy is at 79.487%, the sensitivity is at 82.927%, the specificity is at 75.676%, and the precision is at 79.07%. An ROC curve was made, and the AOC was 0.708. This means the area under the curve is about 70.8% of the graph, which means the ROC curve is just okay (the max AOC is 1 and the min is 0.5). This makes sense because there is a moderate amount of overlap in the density plot.*
+
+# 6: Logistic Regression Pt. 2
+```{R}
+data<- coffee_data %>% mutate(y=ifelse(rank=="high",1,0)) 
+data$rank<-NULL
+
+fit<-glm(y~rating+coffee+tea+internet+food+alcohol+seating+parking+location+
+              local+price+hours, data=data,family="binomial")
+
+prob1 <- predict(fit,type="response")
+predicted1 <- ifelse(prob1>.5,"high","low")
+
+class_diag(predicted1,data$y)
+
+library(pROC)
+auc(data$y,prob1)
+
+#repeated random sub-sampling CV
+fraction<-0.5 
+train_n<-floor(fraction*nrow(data))
+
+iter<-500
+
+diags<-NULL
+for(i in 1:iter){
+  train_index<-sample(1:nrow(data),size=train_n)
+  train<-data[train_index,] 
+  test<-data[-train_index,]
+  truth<-test$y
+  
+  fit1<-glm(y~(.)^2,data=data,family="binomial")
+
+  probs<-predict(fit1,newdata = test,type="response")
+  predicted <- ifelse(probs>.5,"high","low")
+  diags<-rbind(diags,class_diag(predicted,truth))
+}
+
+summarize_all(diags,mean)
+
+#LASSO
+model.matrix(rank~.,data=coffee_data)[,-1] 
+
+library(glmnet)
+y<-as.matrix(coffee_data$rank) #grab response
+x<-model.matrix(rank~.,data=coffee_data)[,-1] #grab predictors
+x<-scale(x)
+
+cv<-cv.glmnet(x,y,family="binomial")
+lasso<-glmnet(x,y,family="binomial",lambda=cv$lambda.1se)
+coef(lasso)
+
+{plot(cv$glmnet.fit, "lambda", label=TRUE); abline(v = log(cv$lambda.1se)); abline(v = log(cv$lambda.min),lty=2)}
+
+
+#redoing CV 
+k=10
+
+data <- coffee_data %>% sample_frac #put rows of dataset in random order
+folds <- ntile(1:nrow(data),n=10) #create fold labels
+
+diags<-NULL
+for(i in 1:k){
+  train <- data[folds!=i,] #create training set (all but fold i)
+  test <- data[folds==i,] #create test set (just fold i)
+  truth <- test$rank #save truth labels from fold i
+  train<- train %>% mutate(y=ifelse(rank=="high",1,0)) 
+  fit <- glm(y ~ rating+service, 
+             data=train, family="binomial")
+  probs <- predict(fit, newdata=test, type="response")
+  
+  diags<-rbind(diags,class_diag(probs,truth))
+}
+
+diags%>%summarize_all(mean)
+```  
+

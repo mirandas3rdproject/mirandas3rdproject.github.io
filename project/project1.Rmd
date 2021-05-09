@@ -1,0 +1,177 @@
+---
+title: "Project 1"
+author: "Miranda McLaughlin (mmm7798)"
+output:
+  html_document:
+    toc: true
+    toc_float:
+      collapsed: false
+---
+
+
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, eval = TRUE, fig.align = "center", 
+    warning = F, message = F, tidy = TRUE, tidy.opts = list(width.cutoff = 60), 
+    R.options = list(max.print = 100))
+```
+
+## *Worldwide Mental Health Statistics*
+
+# Introduction
+
+The two datasets I'm joining together are from the same study, and contain informtaion on mental health statistics throughout the world from 1990-2017. The first dataset contains the country, the country's code, the year, and the percentages of people with different types of mental and substance use disorders. The second dataset also contains the country, country's code, and year, but differs in that the last variable is the total number of people with depression. I found my data on data.world, but originally comes from Our World in Data and was created by Hannah Ritchi and Max Rosner. They collected this data from the Institute for Health Metrics and Evaluation.
+
+This dataset seemed really interesting to me because I think that with the pandemic happening, mental health has gained some more awareness because it's been on our radars more. I think it's important to look at a broader scope of the world's mental health, even before COVID, because it can be stigmitized and it's something that is really under-reported. Some things to also consider in association with this dataset are things like education level, income level, age, and gender.
+
+# Bringing in the Datasets
+```{R}
+library(tidyverse)
+
+mental_percentages <- read_csv("Depression Percentages - Sheet1.csv")
+
+mental_count <- read_csv("Depression Numbers (csv) - Sheet1.csv")
+
+mental_percentages %>% glimpse()
+mental_count %>% glimpse()
+
+```
+
+*The data already appears to be tidy, so I'll have to make it untidy and rearrange some statistics before putting it back together.*
+
+
+# (Un)tidying/Rearranging
+```{R}
+library(tidyverse)
+untidy_percentages <- mental_percentages %>%
+  pivot_longer(contains("(%)")) %>% separate(name, into = c("Disorders"),sep = "(%)") %>%
+  rename("Percentage" = "value")
+
+untidy_count <- mental_count %>% pivot_wider(names_from = "Year", 
+                                             values_from = "People Suffering From Depression")
+untidy_percentages %>% head()
+untidy_count %>% head()
+
+retidy_percentages <- untidy_percentages %>% pivot_wider(names_from = "Disorders", 
+                                                         values_from = "Percentage")
+retidy_count <- untidy_count %>% pivot_longer(cols = "1990":"2017", names_to = "Year",
+                                              values_to= "People Suffering From Depression")
+
+retidy_percentages %>% head()
+retidy_count %>% head()
+```
+*For the first dataset, I condensed the number of columns by putting all the different disorders into one column. I did this using pivot_longer(). This would make it very difficult to merge the datasets and to be able to look at the percentages of a specific mental/substance use disorder over the years. I then just reversed it back to being tidy using pivot_wider().*
+*For the second dataset, I widened the dataset by adding columns for each of the years and putting the number of people with depression within that column. I did this using pivot_wider(). This makes it harder to interpret the dataset because it doesn't specify what the value is under year; you would have to already know what it is. It also makes it harder to pinpoint a certain value at a given year for whatever country it is you're analyzing. I then reversed it back to being tidy using pivot_longer().*
+
+# Merging The Two Datasets Together
+```{R}
+total_mental <- full_join(mental_percentages, mental_count, by=c("Entity", "Code", "Year"))
+```
+*I decided to do a full join on my two datasets because I thought that would be the simplest way to connect them. The two datasets already had the exact same observations for 3 of the variables, so I just connected them through those shared values to seamlessly add the one variable in the second dataset that was different. With this process, none of the cases were dropped.*
+
+
+# Summarizing The Data
+```{R}
+
+#Categorical summary statistics
+total_mental %>% summarize(n_distinct(Entity))
+total_mental %>% summarise(n_distinct(Code))
+total_mental %>% summarize(n_distinct(Year))
+
+#Numerical summary statistics
+total_mental %>% group_by(Year) %>% summarize(sd(`Schizophrenia (%)`))
+total_mental %>% group_by(Entity) %>% summarize(mean(`Bipolar disorder (%)`))
+total_mental %>% summarize(max(`People Suffering From Depression`))
+total_mental %>% summarize(min(`People Suffering From Depression`))
+total_mental %>% summarize(min(`Eating disorders (%)`))
+total_mental %>% group_by(Entity, Code) %>% summarize(mean(`Drug use disorders (%)`))
+total_mental %>% filter(Entity == "United States" & Year == "2017")
+total_mental %>% summarize(cor(`Anxiety disorders (%)`, `Depression (%)`, use = "pair"))
+total_mental %>% select(Entity, Year, `Alcohol use disorders (%)`) %>% 
+  arrange(desc(`Alcohol use disorders (%)`))
+
+total_mental %>% select(Entity, Year, `Depression (%)`, `People Suffering From Depression`) %>%
+  mutate(dep.decimal = `Depression (%)` / 100, 
+  Total_Pop = `People Suffering From Depression` / dep.decimal)
+
+cormat <- total_mental %>% select(`Schizophrenia (%)`: `Alcohol use disorders (%)`) %>% 
+  cor(use = "pair")
+cormat
+
+
+```
+*My summary statistics showed me a lot of things. For my categorical variable, I saw that 231 countries/entities were used in this dataset, but there were only 197 codes, which means not every entity had a code. The dataset also covers a 28 year time period. For the numeric data, I wanted to see different things. Some I thought were pretty relavent to the dataset, and some I was just curious to know. For instance, I found the standard deviation for schizophrenia over the years. I also wanted to know what the mean bipolar percentage was over the years for each entity, as well as the minimum percentage for eating disorders, amung other statistcs. I also narrowed the data down to just the United States in the most recent year (2017) to see those statistics. Some of the more relavent things I did were things like mutating the data to be able to get the total population of an entity per year. I also found the maximum and minimum number of people suffering from depression, to be able to see the difference. And I made a correlation matrix using the numerical values that were a percentage.*
+
+# Visualizations and Plots
+```{R}
+#heatmap
+tidycor <- cormat %>% as.data.frame %>% rownames_to_column("var1") %>%  pivot_longer(-1,names_to="var2",values_to="correlation")
+tidycor
+
+tidycor%>%ggplot(aes(var1,var2,fill=correlation))+  geom_tile()+
+  scale_fill_gradient2(low="yellow",mid="pink",high="red")+
+  geom_text(aes(label=round(correlation,2)),color = "black", size = 4)+ 
+  theme(axis.text.x = element_text(angle = 90, hjust=1))+ coord_fixed()
+
+```
+
+*The heatmap shows the correlations between all of the different mental/substance use disorders. There really wasn't a strong correlation with alcohol use with any other disorder. However, drug use disorders did have pretty noticeable correlations with almost every other disorder. Interestingly, the strongest correlation is between eating disorders and bipolar disorder. Eating disorders also had very strong correlations with anxiety and Schizophrenia. This could maybe mean certain mental disorders can trigger an eating disorder. Bipolar disorder and anxiety were also very strongly related.*
+```{R}
+#ggplots
+total_mental %>% group_by(Year, `Drug use disorders (%)`, Entity) %>% 
+  filter(`Drug use disorders (%)`> 2) %>%
+  ggplot(aes(Year, `Drug use disorders (%)`, color= Entity)) +   
+  geom_point()+ geom_line() +
+  labs(title = "Drug Use Over Time Based On Country (Top Rates)", x = "Time (years)", 
+       y = "Drug Use Disorder (%)")
+
+```
+
+*This graph shows drug use disorders over the 28 year time period for the top 12 entities with the highest rates.The United States had the highest rates of drug use disorders for the entire time period, and you can really see in increase at around 2010. The only other entity near the same rates is North America, which of course includes the US, and the US probably has a very large influence on its rates. I decided to zoom in and just focus on the top rates because there were so many entities with very low drug rates and change over time, and it was impossible to decipher that section of the graph.*
+```{R}
+total_mental %>% group_by(Year, Entity, `People Suffering From Depression`) %>%
+  filter(`People Suffering From Depression`> 40000000) %>%
+  ggplot(aes(Entity, `People Suffering From Depression`, color=Entity)) + 
+  geom_bar(stat="summary") + theme(legend.position = "none") +
+  ggtitle("People With Depression by Entity (High)") + xlab("Entity") + 
+  scale_y_continuous(breaks= seq(50000000, 270000000, 20000000), 
+                                 name= "People With Depression") +
+  geom_errorbar(stat="summary", width= 0.5, fun.data= mean_se) +
+  theme(axis.text.x = element_text(angle = 45, hjust=1))
+
+```
+
+*I made a bar graph of the top 10 entities with the highest population of people suffering from depression, as well as the world's total count of people with depression. I found the results very interesting and noticed a lot of Asian countries and Socioeconomic demographics. Once realizing the what the top 10 entities were, I thought it probably had a lot to do with the fact that all of these have very large total populations, so it would make sense for the depressed population to also be high. Because of that, I decided to also make a graph of the top entities with the highest percentage of depressed people to compare. However, I did find it interesting that the highest Socio Demographic Index was the for the middle socioeconomic group. I also included error bars, and found it interesting that aside from the world there really wasn't a lot of error to account for.*
+```{R}
+total_mental %>% group_by(Year, Entity, `Depression (%)`) %>%
+  filter(`Depression (%)`> 4.5) %>%
+  ggplot(aes(Entity, `Depression (%)`, color=Entity)) + 
+  geom_bar(stat="summary") + theme(legend.position = "none") +
+  ggtitle(" Percentage of People With Depression by Entity (High)") + xlab("Entity") + 
+  scale_y_continuous(breaks= seq(0, 8, 1), 
+                                 name= "People With Depression (%)") +
+  geom_errorbar(stat="summary", width= 0.5, fun.data= mean_se) +
+  coord_flip()
+
+```
+
+*This was the graph I made with the top percentages of people suffering from depression based on entities. I think this kind of graph is a lot more accurate because there is so much variability of population within each country. For instance, I temporarily had made a graph of the lowest number of people with depression, and Greenland was on that graph. However, Greenland actually shows to have the highest percentage by far of people suffering with depression based on this graph. So it's interesting to see how much of a difference there is and how that can really skew your data. None of the entities from the graph above is even on this graph.*
+
+# PAM Clustering
+```{R}
+library(cluster)
+pam_data <-total_mental %>% select(`Schizophrenia (%)`: `Anxiety disorders (%)`) %>% 
+  scale %>% pam(2)
+pam_data
+
+final <- total_mental %>% mutate(cluster = as.factor(pam_data$clustering))
+
+library(GGally)
+ggpairs(final, columns=4:7, aes(color=cluster))
+
+plot(pam_data,which=2)
+
+```
+
+*I started off by choosing which variables I wanted to cluster and scaling them, then running the PAM code using two clusters. At this stage, it shows which values were assigned to which cluster (1 or 2). After that, since I'm using 4 variables, I made a visualization to show every possible combination of clusters on a 2D plane, to be able to help interpret the results.The graphs that represent the values for Schizophrenia and eating disorder, bipolar disorder and eating disorders, and schizophrenia and anxiety have the least separation in clusters. I think this makes sense because these variables had very high correlations with each other, so I think they would be very closely related when clustered together. However, because of this close relationship, when a silhouette test was run the average silhouette width was only 0.5, which is pretty weak (maybe bordering reasonable data). I came to the number of clusters by just trying out different combinations of variables and cluster numbers until I found the highest silhouette value (this one).*
+

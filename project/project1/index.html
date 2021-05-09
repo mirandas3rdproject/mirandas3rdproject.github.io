@@ -1,0 +1,489 @@
+<!DOCTYPE html>
+<html lang="en-US">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="author" content="Miranda McLaughlin" />
+    
+    <link rel="shortcut icon" type="image/x-icon" href="../../img/favicon.ico">
+    <title>Project 1</title>
+    <meta name="generator" content="Hugo 0.83.1" />
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+    <link rel="stylesheet" type="text/css" href="../../css/main.css" />
+    <link rel="stylesheet" type="text/css" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" />
+    <link rel="stylesheet" type="text/css" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:200,400,200bold,400old" />
+    
+    <!--[if lt IE 9]>
+			<script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+			<script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+		<![endif]-->
+
+    
+  </head>
+
+  <body>
+    <div id="wrap">
+      
+      <nav class="navbar navbar-default">
+  <div class="container">
+    <div class="navbar-header">
+      <a class="navbar-brand" href="../../"><i class="fa fa-home"></i></a>
+      <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#navbar">
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+    </div>
+    <div class="navbar-collapse collapse" id="navbar">
+      <ul class="nav navbar-nav navbar-right">
+      
+        
+        <li><a href="../../post/">BLOG</a></li>
+        
+        <li><a href="../../projects/">PROJECTS</a></li>
+        
+        <li><a href="../../resume/">RESUME</a></li>
+        
+      
+      </ul>
+    </div>
+  </div>
+</nav>
+
+      <div class="container">
+        <div class="blog-post">
+          <h3>
+            <strong><a href="../../project/project1/">Project 1</a></strong>
+          </h3>
+        </div>
+ 
+<div class="blog-title">
+          <h4>
+         January 1, 0001 
+            &nbsp;&nbsp;
+            
+          </h4>
+        </div>
+
+        <div class="panel panel-default">
+          <div class="panel-body">
+            <div class="blogpost">
+              
+
+
+<div id="worldwide-mental-health-statistics" class="section level2">
+<h2><em>Worldwide Mental Health Statistics</em></h2>
+</div>
+<div id="introduction" class="section level1">
+<h1>Introduction</h1>
+<p>The two datasets I’m joining together are from the same study, and contain informtaion on mental health statistics throughout the world from 1990-2017. The first dataset contains the country, the country’s code, the year, and the percentages of people with different types of mental and substance use disorders. The second dataset also contains the country, country’s code, and year, but differs in that the last variable is the total number of people with depression. I found my data on data.world, but originally comes from Our World in Data and was created by Hannah Ritchi and Max Rosner. They collected this data from the Institute for Health Metrics and Evaluation.</p>
+<p>This dataset seemed really interesting to me because I think that with the pandemic happening, mental health has gained some more awareness because it’s been on our radars more. I think it’s important to look at a broader scope of the world’s mental health, even before COVID, because it can be stigmitized and it’s something that is really under-reported. Some things to also consider in association with this dataset are things like education level, income level, age, and gender.</p>
+</div>
+<div id="bringing-in-the-datasets" class="section level1">
+<h1>Bringing in the Datasets</h1>
+<pre class="r"><code>library(tidyverse)
+
+mental_percentages &lt;- read_csv(&quot;Depression Percentages - Sheet1.csv&quot;)
+
+mental_count &lt;- read_csv(&quot;Depression Numbers (csv) - Sheet1.csv&quot;)
+
+mental_percentages %&gt;% glimpse()</code></pre>
+<pre><code>## Rows: 6,468
+## Columns: 10
+## $ Entity                      &lt;chr&gt; &quot;Afghanistan&quot;, &quot;Afghanistan&quot;, &quot;Afghanista…
+## $ Code                        &lt;chr&gt; &quot;AFG&quot;, &quot;AFG&quot;, &quot;AFG&quot;, &quot;AFG&quot;, &quot;AFG&quot;, &quot;AFG&quot;,…
+## $ Year                        &lt;dbl&gt; 1990, 1991, 1992, 1993, 1994, 1995, 1996,…
+## $ `Schizophrenia (%)`         &lt;dbl&gt; 0.1605595, 0.1603119, 0.1601348, 0.160037…
+## $ `Bipolar disorder (%)`      &lt;dbl&gt; 0.6977794, 0.6979606, 0.6981070, 0.698256…
+## $ `Eating disorders (%)`      &lt;dbl&gt; 0.10185486, 0.09931279, 0.09669159, 0.094…
+## $ `Anxiety disorders (%)`     &lt;dbl&gt; 4.828830, 4.829740, 4.831108, 4.830864, 4…
+## $ `Drug use disorders (%)`    &lt;dbl&gt; 1.677082, 1.684746, 1.694334, 1.705320, 1…
+## $ `Depression (%)`            &lt;dbl&gt; 4.071831, 4.079531, 4.088358, 4.096190, 4…
+## $ `Alcohol use disorders (%)` &lt;dbl&gt; 0.6724041, 0.6717681, 0.6706440, 0.669738…</code></pre>
+<pre class="r"><code>mental_count %&gt;% glimpse()</code></pre>
+<pre><code>## Rows: 6,468
+## Columns: 4
+## $ Entity                             &lt;chr&gt; &quot;Afghanistan&quot;, &quot;Afghanistan&quot;, &quot;Afg…
+## $ Code                               &lt;chr&gt; &quot;AFG&quot;, &quot;AFG&quot;, &quot;AFG&quot;, &quot;AFG&quot;, &quot;AFG&quot;,…
+## $ Year                               &lt;dbl&gt; 1990, 1991, 1992, 1993, 1994, 1995…
+## $ `People Suffering From Depression` &lt;dbl&gt; 318435.8, 329044.8, 382544.6, 4403…</code></pre>
+<p><em>The data already appears to be tidy, so I’ll have to make it untidy and rearrange some statistics before putting it back together.</em></p>
+</div>
+<div id="untidyingrearranging" class="section level1">
+<h1>(Un)tidying/Rearranging</h1>
+<pre class="r"><code>library(tidyverse)
+untidy_percentages &lt;- mental_percentages %&gt;% pivot_longer(contains(&quot;(%)&quot;)) %&gt;% 
+    separate(name, into = c(&quot;Disorders&quot;), sep = &quot;(%)&quot;) %&gt;% rename(Percentage = &quot;value&quot;)
+
+untidy_count &lt;- mental_count %&gt;% pivot_wider(names_from = &quot;Year&quot;, 
+    values_from = &quot;People Suffering From Depression&quot;)
+untidy_percentages %&gt;% head()</code></pre>
+<pre><code>## # A tibble: 6 x 5
+##   Entity      Code   Year Disorders            Percentage
+##   &lt;chr&gt;       &lt;chr&gt; &lt;dbl&gt; &lt;chr&gt;                     &lt;dbl&gt;
+## 1 Afghanistan AFG    1990 Schizophrenia (           0.161
+## 2 Afghanistan AFG    1990 Bipolar disorder (        0.698
+## 3 Afghanistan AFG    1990 Eating disorders (        0.102
+## 4 Afghanistan AFG    1990 Anxiety disorders (       4.83 
+## 5 Afghanistan AFG    1990 Drug use disorders (      1.68 
+## 6 Afghanistan AFG    1990 Depression (              4.07</code></pre>
+<pre class="r"><code>untidy_count %&gt;% head()</code></pre>
+<pre><code>## # A tibble: 6 x 30
+##   Entity Code  `1990` `1991` `1992` `1993` `1994` `1995` `1996` `1997` `1998`
+##   &lt;chr&gt;  &lt;chr&gt;  &lt;dbl&gt;  &lt;dbl&gt;  &lt;dbl&gt;  &lt;dbl&gt;  &lt;dbl&gt;  &lt;dbl&gt;  &lt;dbl&gt;  &lt;dbl&gt;  &lt;dbl&gt;
+## 1 Afgha… AFG   3.18e5 3.29e5 3.83e5 4.40e5 4.57e5 4.71e5 4.87e5 5.00e5 5.10e5
+## 2 Alban… ALB   6.00e4 6.08e4 6.15e4 6.21e4 6.27e4 6.32e4 6.37e4 6.44e4 6.89e4
+## 3 Alger… DZA   7.17e5 7.40e5 7.63e5 7.87e5 8.12e5 8.37e5 8.63e5 8.90e5 9.16e5
+## 4 Ameri… ASM   1.09e3 1.12e3 1.16e3 1.19e3 1.22e3 1.25e3 1.27e3 1.30e3 1.32e3
+## 5 Andea… &lt;NA&gt;  7.98e5 8.23e5 8.48e5 8.72e5 8.97e5 9.21e5 9.45e5 9.67e5 9.89e5
+## 6 Andor… AND   2.16e3 2.35e3 2.47e3 2.62e3 2.61e3 2.59e3 2.62e3 2.66e3 2.69e3
+## # … with 19 more variables: `1999` &lt;dbl&gt;, `2000` &lt;dbl&gt;, `2001` &lt;dbl&gt;,
+## #   `2002` &lt;dbl&gt;, `2003` &lt;dbl&gt;, `2004` &lt;dbl&gt;, `2005` &lt;dbl&gt;, `2006` &lt;dbl&gt;,
+## #   `2007` &lt;dbl&gt;, `2008` &lt;dbl&gt;, `2009` &lt;dbl&gt;, `2010` &lt;dbl&gt;, `2011` &lt;dbl&gt;,
+## #   `2012` &lt;dbl&gt;, `2013` &lt;dbl&gt;, `2014` &lt;dbl&gt;, `2015` &lt;dbl&gt;, `2016` &lt;dbl&gt;,
+## #   `2017` &lt;dbl&gt;</code></pre>
+<pre class="r"><code>retidy_percentages &lt;- untidy_percentages %&gt;% pivot_wider(names_from = &quot;Disorders&quot;, 
+    values_from = &quot;Percentage&quot;)
+retidy_count &lt;- untidy_count %&gt;% pivot_longer(cols = &quot;1990&quot;:&quot;2017&quot;, 
+    names_to = &quot;Year&quot;, values_to = &quot;People Suffering From Depression&quot;)
+
+retidy_percentages %&gt;% head()</code></pre>
+<pre><code>## # A tibble: 6 x 10
+##   Entity Code   Year `Schizophrenia … `Bipolar disord… `Eating disorde…
+##   &lt;chr&gt;  &lt;chr&gt; &lt;dbl&gt;            &lt;dbl&gt;            &lt;dbl&gt;            &lt;dbl&gt;
+## 1 Afgha… AFG    1990            0.161            0.698           0.102 
+## 2 Afgha… AFG    1991            0.160            0.698           0.0993
+## 3 Afgha… AFG    1992            0.160            0.698           0.0967
+## 4 Afgha… AFG    1993            0.160            0.698           0.0943
+## 5 Afgha… AFG    1994            0.160            0.698           0.0924
+## 6 Afgha… AFG    1995            0.160            0.699           0.0910
+## # … with 4 more variables: `Anxiety disorders (` &lt;dbl&gt;, `Drug use disorders
+## #   (` &lt;dbl&gt;, `Depression (` &lt;dbl&gt;, `Alcohol use disorders (` &lt;dbl&gt;</code></pre>
+<pre class="r"><code>retidy_count %&gt;% head()</code></pre>
+<pre><code>## # A tibble: 6 x 4
+##   Entity      Code  Year  `People Suffering From Depression`
+##   &lt;chr&gt;       &lt;chr&gt; &lt;chr&gt;                              &lt;dbl&gt;
+## 1 Afghanistan AFG   1990                             318436.
+## 2 Afghanistan AFG   1991                             329045.
+## 3 Afghanistan AFG   1992                             382545.
+## 4 Afghanistan AFG   1993                             440382.
+## 5 Afghanistan AFG   1994                             456917.
+## 6 Afghanistan AFG   1995                             471475.</code></pre>
+<p><em>For the first dataset, I condensed the number of columns by putting all the different disorders into one column. I did this using pivot_longer(). This would make it very difficult to merge the datasets and to be able to look at the percentages of a specific mental/substance use disorder over the years. I then just reversed it back to being tidy using pivot_wider().</em>
+<em>For the second dataset, I widened the dataset by adding columns for each of the years and putting the number of people with depression within that column. I did this using pivot_wider(). This makes it harder to interpret the dataset because it doesn’t specify what the value is under year; you would have to already know what it is. It also makes it harder to pinpoint a certain value at a given year for whatever country it is you’re analyzing. I then reversed it back to being tidy using pivot_longer().</em></p>
+</div>
+<div id="merging-the-two-datasets-together" class="section level1">
+<h1>Merging The Two Datasets Together</h1>
+<pre class="r"><code>total_mental &lt;- full_join(mental_percentages, mental_count, by = c(&quot;Entity&quot;, 
+    &quot;Code&quot;, &quot;Year&quot;))</code></pre>
+<p><em>I decided to do a full join on my two datasets because I thought that would be the simplest way to connect them. The two datasets already had the exact same observations for 3 of the variables, so I just connected them through those shared values to seamlessly add the one variable in the second dataset that was different. With this process, none of the cases were dropped.</em></p>
+</div>
+<div id="summarizing-the-data" class="section level1">
+<h1>Summarizing The Data</h1>
+<pre class="r"><code># Categorical summary statistics
+total_mental %&gt;% summarize(n_distinct(Entity))</code></pre>
+<pre><code>## # A tibble: 1 x 1
+##   `n_distinct(Entity)`
+##                  &lt;int&gt;
+## 1                  231</code></pre>
+<pre class="r"><code>total_mental %&gt;% summarise(n_distinct(Code))</code></pre>
+<pre><code>## # A tibble: 1 x 1
+##   `n_distinct(Code)`
+##                &lt;int&gt;
+## 1                197</code></pre>
+<pre class="r"><code>total_mental %&gt;% summarize(n_distinct(Year))</code></pre>
+<pre><code>## # A tibble: 1 x 1
+##   `n_distinct(Year)`
+##                &lt;int&gt;
+## 1                 28</code></pre>
+<pre class="r"><code># Numerical summary statistics
+total_mental %&gt;% group_by(Year) %&gt;% summarize(sd(`Schizophrenia (%)`))</code></pre>
+<pre><code>## # A tibble: 28 x 2
+##     Year `sd(\`Schizophrenia (%)\`)`
+##    &lt;dbl&gt;                       &lt;dbl&gt;
+##  1  1990                      0.0440
+##  2  1991                      0.0440
+##  3  1992                      0.0440
+##  4  1993                      0.0440
+##  5  1994                      0.0441
+##  6  1995                      0.0441
+##  7  1996                      0.0442
+##  8  1997                      0.0443
+##  9  1998                      0.0444
+## 10  1999                      0.0445
+## # … with 18 more rows</code></pre>
+<pre class="r"><code>total_mental %&gt;% group_by(Entity) %&gt;% summarize(mean(`Bipolar disorder (%)`))</code></pre>
+<pre><code>## # A tibble: 231 x 2
+##    Entity               `mean(\`Bipolar disorder (%)\`)`
+##    &lt;chr&gt;                                           &lt;dbl&gt;
+##  1 Afghanistan                                     0.702
+##  2 Albania                                         0.700
+##  3 Algeria                                         0.810
+##  4 American Samoa                                  0.467
+##  5 Andean Latin America                            0.876
+##  6 Andorra                                         0.964
+##  7 Angola                                          0.619
+##  8 Antigua and Barbuda                             0.924
+##  9 Argentina                                       0.766
+## 10 Armenia                                         0.714
+## # … with 221 more rows</code></pre>
+<pre class="r"><code>total_mental %&gt;% summarize(max(`People Suffering From Depression`))</code></pre>
+<pre><code>## # A tibble: 1 x 1
+##   `max(\`People Suffering From Depression\`)`
+##                                         &lt;dbl&gt;
+## 1                                  264455593.</code></pre>
+<pre class="r"><code>total_mental %&gt;% summarize(min(`People Suffering From Depression`))</code></pre>
+<pre><code>## # A tibble: 1 x 1
+##   `min(\`People Suffering From Depression\`)`
+##                                         &lt;dbl&gt;
+## 1                                        931.</code></pre>
+<pre class="r"><code>total_mental %&gt;% summarize(min(`Eating disorders (%)`))</code></pre>
+<pre><code>## # A tibble: 1 x 1
+##   `min(\`Eating disorders (%)\`)`
+##                             &lt;dbl&gt;
+## 1                          0.0739</code></pre>
+<pre class="r"><code>total_mental %&gt;% group_by(Entity, Code) %&gt;% summarize(mean(`Drug use disorders (%)`))</code></pre>
+<pre><code>## # A tibble: 231 x 3
+## # Groups:   Entity [231]
+##    Entity               Code  `mean(\`Drug use disorders (%)\`)`
+##    &lt;chr&gt;                &lt;chr&gt;                              &lt;dbl&gt;
+##  1 Afghanistan          AFG                                2.12 
+##  2 Albania              ALB                                0.499
+##  3 Algeria              DZA                                1.54 
+##  4 American Samoa       ASM                                0.759
+##  5 Andean Latin America &lt;NA&gt;                               0.647
+##  6 Andorra              AND                                0.885
+##  7 Angola               AGO                                0.512
+##  8 Antigua and Barbuda  ATG                                0.776
+##  9 Argentina            ARG                                0.939
+## 10 Armenia              ARM                                0.465
+## # … with 221 more rows</code></pre>
+<pre class="r"><code>total_mental %&gt;% filter(Entity == &quot;United States&quot; &amp; Year == &quot;2017&quot;)</code></pre>
+<pre><code>## # A tibble: 1 x 11
+##   Entity Code   Year `Schizophrenia … `Bipolar disord… `Eating disorde…
+##   &lt;chr&gt;  &lt;chr&gt; &lt;dbl&gt;            &lt;dbl&gt;            &lt;dbl&gt;            &lt;dbl&gt;
+## 1 Unite… USA    2017            0.334            0.651            0.513
+## # … with 5 more variables: `Anxiety disorders (%)` &lt;dbl&gt;, `Drug use disorders
+## #   (%)` &lt;dbl&gt;, `Depression (%)` &lt;dbl&gt;, `Alcohol use disorders (%)` &lt;dbl&gt;,
+## #   `People Suffering From Depression` &lt;dbl&gt;</code></pre>
+<pre class="r"><code>total_mental %&gt;% summarize(cor(`Anxiety disorders (%)`, `Depression (%)`, 
+    use = &quot;pair&quot;))</code></pre>
+<pre><code>## # A tibble: 1 x 1
+##   `cor(\`Anxiety disorders (%)\`, \`Depression (%)\`, use = &quot;pair&quot;)`
+##                                                                &lt;dbl&gt;
+## 1                                                              0.379</code></pre>
+<pre class="r"><code>total_mental %&gt;% select(Entity, Year, `Alcohol use disorders (%)`) %&gt;% 
+    arrange(desc(`Alcohol use disorders (%)`))</code></pre>
+<pre><code>## # A tibble: 6,468 x 3
+##    Entity   Year `Alcohol use disorders (%)`
+##    &lt;chr&gt;   &lt;dbl&gt;                       &lt;dbl&gt;
+##  1 Belarus  2010                        5.47
+##  2 Belarus  2011                        5.47
+##  3 Belarus  2012                        5.47
+##  4 Belarus  2009                        5.46
+##  5 Belarus  2013                        5.46
+##  6 Belarus  2014                        5.44
+##  7 Belarus  2008                        5.43
+##  8 Belarus  2015                        5.41
+##  9 Belarus  2007                        5.40
+## 10 Russia   2000                        5.39
+## # … with 6,458 more rows</code></pre>
+<pre class="r"><code>total_mental %&gt;% select(Entity, Year, `Depression (%)`, `People Suffering From Depression`) %&gt;% 
+    mutate(dep.decimal = `Depression (%)`/100, Total_Pop = `People Suffering From Depression`/dep.decimal)</code></pre>
+<pre><code>## # A tibble: 6,468 x 6
+##    Entity    Year `Depression (%)` `People Suffering From… dep.decimal Total_Pop
+##    &lt;chr&gt;    &lt;dbl&gt;            &lt;dbl&gt;                   &lt;dbl&gt;       &lt;dbl&gt;     &lt;dbl&gt;
+##  1 Afghani…  1990             4.07                 318436.      0.0407  7820457.
+##  2 Afghani…  1991             4.08                 329045.      0.0408  8065750.
+##  3 Afghani…  1992             4.09                 382545.      0.0409  9356924.
+##  4 Afghani…  1993             4.10                 440382.      0.0410 10751003.
+##  5 Afghani…  1994             4.10                 456917.      0.0410 11145446.
+##  6 Afghani…  1995             4.10                 471475.      0.0410 11487607.
+##  7 Afghani…  1996             4.11                 486916.      0.0411 11854319.
+##  8 Afghani…  1997             4.11                 499770.      0.0411 12157398.
+##  9 Afghani…  1998             4.11                 509695.      0.0411 12387973.
+## 10 Afghani…  1999             4.12                 503305.      0.0412 12223159.
+## # … with 6,458 more rows</code></pre>
+<pre class="r"><code>cormat &lt;- total_mental %&gt;% select(`Schizophrenia (%)`:`Alcohol use disorders (%)`) %&gt;% 
+    cor(use = &quot;pair&quot;)
+cormat</code></pre>
+<pre><code>##                           Schizophrenia (%) Bipolar disorder (%)
+## Schizophrenia (%)                1.00000000           0.19845551
+## Bipolar disorder (%)             0.19845551           1.00000000
+## Eating disorders (%)             0.66881555           0.70805533
+## Anxiety disorders (%)            0.46932466           0.66374529
+## Drug use disorders (%)           0.47520269           0.36387062
+## Depression (%)                   0.16747753           0.14855722
+## Alcohol use disorders (%)       -0.05920694           0.07969432
+##                           Eating disorders (%) Anxiety disorders (%)
+## Schizophrenia (%)                   0.66881555             0.4693247
+## Bipolar disorder (%)                0.70805533             0.6637453
+## Eating disorders (%)                1.00000000             0.6980261
+## Anxiety disorders (%)               0.69802614             1.0000000
+## Drug use disorders (%)              0.49418748             0.6160773
+## Depression (%)                      0.24071598             0.3790116
+## Alcohol use disorders (%)           0.03525434            -0.1365023
+##                           Drug use disorders (%) Depression (%)
+## Schizophrenia (%)                      0.4752027     0.16747753
+## Bipolar disorder (%)                   0.3638706     0.14855722
+## Eating disorders (%)                   0.4941875     0.24071598
+## Anxiety disorders (%)                  0.6160773     0.37901155
+## Drug use disorders (%)                 1.0000000     0.36653875
+## Depression (%)                         0.3665388     1.00000000
+## Alcohol use disorders (%)             -0.1132449     0.05014556
+##                           Alcohol use disorders (%)
+## Schizophrenia (%)                       -0.05920694
+## Bipolar disorder (%)                     0.07969432
+## Eating disorders (%)                     0.03525434
+## Anxiety disorders (%)                   -0.13650233
+## Drug use disorders (%)                  -0.11324492
+## Depression (%)                           0.05014556
+## Alcohol use disorders (%)                1.00000000</code></pre>
+<p><em>My summary statistics showed me a lot of things. For my categorical variable, I saw that 231 countries/entities were used in this dataset, but there were only 197 codes, which means not every entity had a code. The dataset also covers a 28 year time period. For the numeric data, I wanted to see different things. Some I thought were pretty relavent to the dataset, and some I was just curious to know. For instance, I found the standard deviation for schizophrenia over the years. I also wanted to know what the mean bipolar percentage was over the years for each entity, as well as the minimum percentage for eating disorders, amung other statistcs. I also narrowed the data down to just the United States in the most recent year (2017) to see those statistics. Some of the more relavent things I did were things like mutating the data to be able to get the total population of an entity per year. I also found the maximum and minimum number of people suffering from depression, to be able to see the difference. And I made a correlation matrix using the numerical values that were a percentage.</em></p>
+</div>
+<div id="visualizations-and-plots" class="section level1">
+<h1>Visualizations and Plots</h1>
+<pre class="r"><code># heatmap
+tidycor &lt;- cormat %&gt;% as.data.frame %&gt;% rownames_to_column(&quot;var1&quot;) %&gt;% 
+    pivot_longer(-1, names_to = &quot;var2&quot;, values_to = &quot;correlation&quot;)
+tidycor</code></pre>
+<pre><code>## # A tibble: 49 x 3
+##    var1                 var2                      correlation
+##    &lt;chr&gt;                &lt;chr&gt;                           &lt;dbl&gt;
+##  1 Schizophrenia (%)    Schizophrenia (%)              1     
+##  2 Schizophrenia (%)    Bipolar disorder (%)           0.198 
+##  3 Schizophrenia (%)    Eating disorders (%)           0.669 
+##  4 Schizophrenia (%)    Anxiety disorders (%)          0.469 
+##  5 Schizophrenia (%)    Drug use disorders (%)         0.475 
+##  6 Schizophrenia (%)    Depression (%)                 0.167 
+##  7 Schizophrenia (%)    Alcohol use disorders (%)     -0.0592
+##  8 Bipolar disorder (%) Schizophrenia (%)              0.198 
+##  9 Bipolar disorder (%) Bipolar disorder (%)           1     
+## 10 Bipolar disorder (%) Eating disorders (%)           0.708 
+## # … with 39 more rows</code></pre>
+<pre class="r"><code>tidycor %&gt;% ggplot(aes(var1, var2, fill = correlation)) + geom_tile() + 
+    scale_fill_gradient2(low = &quot;yellow&quot;, mid = &quot;pink&quot;, high = &quot;red&quot;) + 
+    geom_text(aes(label = round(correlation, 2)), color = &quot;black&quot;, 
+        size = 4) + theme(axis.text.x = element_text(angle = 90, 
+    hjust = 1)) + coord_fixed()</code></pre>
+<p><img src="../../project/project1_files/figure-html/unnamed-chunk-5-1.png" width="672" style="display: block; margin: auto;" /></p>
+<p><em>The heatmap shows the correlations between all of the different mental/substance use disorders. There really wasn’t a strong correlation with alcohol use with any other disorder. However, drug use disorders did have pretty noticeable correlations with almost every other disorder. Interestingly, the strongest correlation is between eating disorders and bipolar disorder. Eating disorders also had very strong correlations with anxiety and Schizophrenia. This could maybe mean certain mental disorders can trigger an eating disorder. Bipolar disorder and anxiety were also very strongly related.</em></p>
+<pre class="r"><code># ggplots
+total_mental %&gt;% group_by(Year, `Drug use disorders (%)`, Entity) %&gt;% 
+    filter(`Drug use disorders (%)` &gt; 2) %&gt;% ggplot(aes(Year, 
+    `Drug use disorders (%)`, color = Entity)) + geom_point() + 
+    geom_line() + labs(title = &quot;Drug Use Over Time Based On Country (Top Rates)&quot;, 
+    x = &quot;Time (years)&quot;, y = &quot;Drug Use Disorder (%)&quot;)</code></pre>
+<p><img src="../../project/project1_files/figure-html/unnamed-chunk-6-1.png" width="672" style="display: block; margin: auto;" /></p>
+<p><em>This graph shows drug use disorders over the 28 year time period for the top 12 entities with the highest rates.The United States had the highest rates of drug use disorders for the entire time period, and you can really see in increase at around 2010. The only other entity near the same rates is North America, which of course includes the US, and the US probably has a very large influence on its rates. I decided to zoom in and just focus on the top rates because there were so many entities with very low drug rates and change over time, and it was impossible to decipher that section of the graph.</em></p>
+<pre class="r"><code>total_mental %&gt;% group_by(Year, Entity, `People Suffering From Depression`) %&gt;% 
+    filter(`People Suffering From Depression` &gt; 4e+07) %&gt;% ggplot(aes(Entity, 
+    `People Suffering From Depression`, color = Entity)) + geom_bar(stat = &quot;summary&quot;) + 
+    theme(legend.position = &quot;none&quot;) + ggtitle(&quot;People With Depression by Entity (High)&quot;) + 
+    xlab(&quot;Entity&quot;) + scale_y_continuous(breaks = seq(5e+07, 2.7e+08, 
+    2e+07), name = &quot;People With Depression&quot;) + geom_errorbar(stat = &quot;summary&quot;, 
+    width = 0.5, fun.data = mean_se) + theme(axis.text.x = element_text(angle = 45, 
+    hjust = 1))</code></pre>
+<p><img src="../../project/project1_files/figure-html/unnamed-chunk-7-1.png" width="672" style="display: block; margin: auto;" /></p>
+<p><em>I made a bar graph of the top 10 entities with the highest population of people suffering from depression, as well as the world’s total count of people with depression. I found the results very interesting and noticed a lot of Asian countries and Socioeconomic demographics. Once realizing the what the top 10 entities were, I thought it probably had a lot to do with the fact that all of these have very large total populations, so it would make sense for the depressed population to also be high. Because of that, I decided to also make a graph of the top entities with the highest percentage of depressed people to compare. However, I did find it interesting that the highest Socio Demographic Index was the for the middle socioeconomic group. I also included error bars, and found it interesting that aside from the world there really wasn’t a lot of error to account for.</em></p>
+<pre class="r"><code>total_mental %&gt;% group_by(Year, Entity, `Depression (%)`) %&gt;% 
+    filter(`Depression (%)` &gt; 4.5) %&gt;% ggplot(aes(Entity, `Depression (%)`, 
+    color = Entity)) + geom_bar(stat = &quot;summary&quot;) + theme(legend.position = &quot;none&quot;) + 
+    ggtitle(&quot; Percentage of People With Depression by Entity (High)&quot;) + 
+    xlab(&quot;Entity&quot;) + scale_y_continuous(breaks = seq(0, 8, 1), 
+    name = &quot;People With Depression (%)&quot;) + geom_errorbar(stat = &quot;summary&quot;, 
+    width = 0.5, fun.data = mean_se) + coord_flip()</code></pre>
+<p><img src="../../project/project1_files/figure-html/unnamed-chunk-8-1.png" width="672" style="display: block; margin: auto;" /></p>
+<p><em>This was the graph I made with the top percentages of people suffering from depression based on entities. I think this kind of graph is a lot more accurate because there is so much variability of population within each country. For instance, I temporarily had made a graph of the lowest number of people with depression, and Greenland was on that graph. However, Greenland actually shows to have the highest percentage by far of people suffering with depression based on this graph. So it’s interesting to see how much of a difference there is and how that can really skew your data. None of the entities from the graph above is even on this graph.</em></p>
+</div>
+<div id="pam-clustering" class="section level1">
+<h1>PAM Clustering</h1>
+<pre class="r"><code>library(cluster)
+pam_data &lt;- total_mental %&gt;% select(`Schizophrenia (%)`:`Anxiety disorders (%)`) %&gt;% 
+    scale %&gt;% pam(2)
+pam_data</code></pre>
+<pre><code>## Medoids:
+##        ID Schizophrenia (%) Bipolar disorder (%) Eating disorders (%)
+## [1,] 4931        -0.3556445           -0.1506084           -0.5042023
+## [2,] 4579         0.8410388            1.1766069            1.5194896
+##      Anxiety disorders (%)
+## [1,]            -0.5151539
+## [2,]             1.1653386
+## Clustering vector:
+##   [1] 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1
+##  [38] 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1
+##  [75] 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1
+##  [ reached getOption(&quot;max.print&quot;) -- omitted 6368 entries ]
+## Objective function:
+##    build     swap 
+## 1.291893 1.265763 
+## 
+## Available components:
+##  [1] &quot;medoids&quot;    &quot;id.med&quot;     &quot;clustering&quot; &quot;objective&quot;  &quot;isolation&quot; 
+##  [6] &quot;clusinfo&quot;   &quot;silinfo&quot;    &quot;diss&quot;       &quot;call&quot;       &quot;data&quot;</code></pre>
+<pre class="r"><code>final &lt;- total_mental %&gt;% mutate(cluster = as.factor(pam_data$clustering))
+
+library(GGally)
+ggpairs(final, columns = 4:7, aes(color = cluster))</code></pre>
+<p><img src="../../project/project1_files/figure-html/unnamed-chunk-9-1.png" width="672" style="display: block; margin: auto;" /></p>
+<pre class="r"><code>plot(pam_data, which = 2)</code></pre>
+<p><img src="../../project/project1_files/figure-html/unnamed-chunk-9-2.png" width="672" style="display: block; margin: auto;" /></p>
+<p><em>I started off by choosing which variables I wanted to cluster and scaling them, then running the PAM code using two clusters. At this stage, it shows which values were assigned to which cluster (1 or 2). After that, since I’m using 4 variables, I made a visualization to show every possible combination of clusters on a 2D plane, to be able to help interpret the results.The graphs that represent the values for Schizophrenia and eating disorder, bipolar disorder and eating disorders, and schizophrenia and anxiety have the least separation in clusters. I think this makes sense because these variables had very high correlations with each other, so I think they would be very closely related when clustered together. However, because of this close relationship, when a silhouette test was run the average silhouette width was only 0.5, which is pretty weak (maybe bordering reasonable data). I came to the number of clusters by just trying out different combinations of variables and cluster numbers until I found the highest silhouette value (this one).</em></p>
+</div>
+
+            
+        <hr>         <div class="related-posts">
+                <h5>Related Posts</h5>
+                
+              </div> 
+            </div>
+          </div>
+
+   <hr>  <div class="disqus">
+  <div id="disqus_thread"></div>
+  <script type="text/javascript">
+
+    (function() {
+      
+      
+      if (window.location.hostname == "localhost")
+        return;
+
+      var disqus_shortname = '';
+      var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+      dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+      (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    })();
+  </script>
+  <noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+  <a href="http://disqus.com/" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+</div> 
+        </div>
+      </div>
+    </div>
+
+    
+    <footer>
+  <div id="footer">
+    <div class="container">
+      <p class="text-muted">&copy; All rights reserved. Powered by <a href="https://gohugo.io/">Hugo</a> and
+      <a href="http://www.github.com/nurlansu/hugo-sustain/">sustain</a> with ♥</p>
+    </div>
+  </div>
+</footer>
+<div class="footer"></div>
+
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
+<script src="../../js/docs.min.js"></script>
+<script src="../../js/main.js"></script>
+
+<script src="../../js/ie10-viewport-bug-workaround.js"></script>
+
+
+    
+  </body>
+</html>

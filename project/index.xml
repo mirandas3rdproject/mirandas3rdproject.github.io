@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Projects on Project 3</title>
+    <link>/project/</link>
+    <description>Recent content in Projects on Project 3</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-US</language><atom:link href="/project/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Project 1</title>
+      <link>/project/project1/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>/project/project1/</guid>
+      <description>Worldwide Mental Health Statistics  Introduction The two datasets I’m joining together are from the same study, and contain informtaion on mental health statistics throughout the world from 1990-2017. The first dataset contains the country, the country’s code, the year, and the percentages of people with different types of mental and substance use disorders. The second dataset also contains the country, country’s code, and year, but differs in that the last variable is the total number of people with depression.</description>
+    </item>
+    
+    <item>
+      <title>Project 2</title>
+      <link>/project/project2/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>/project/project2/</guid>
+      <description>Data on Austin Coffee Shops  Introduction I found data that reports on the yelp ratings of all of the coffee shops in Austin. The data accounts for the name of the shop, the number of total yelp reviews it has, its overall rating (out of 5 stars), and things that may have factored into its rating such as the quality of the coffee, the price, and the location, to name a few.</description>
+    </item>
+    
+  </channel>
+</rss>

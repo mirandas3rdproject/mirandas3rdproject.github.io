@@ -1,0 +1,668 @@
+<!DOCTYPE html>
+<html lang="en-US">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="author" content="Miranda McLaughlin" />
+    
+    <link rel="shortcut icon" type="image/x-icon" href="../../img/favicon.ico">
+    <title>Project 2</title>
+    <meta name="generator" content="Hugo 0.83.1" />
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+    <link rel="stylesheet" type="text/css" href="../../css/main.css" />
+    <link rel="stylesheet" type="text/css" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" />
+    <link rel="stylesheet" type="text/css" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:200,400,200bold,400old" />
+    
+    <!--[if lt IE 9]>
+			<script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+			<script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+		<![endif]-->
+
+    
+  </head>
+
+  <body>
+    <div id="wrap">
+      
+      <nav class="navbar navbar-default">
+  <div class="container">
+    <div class="navbar-header">
+      <a class="navbar-brand" href="../../"><i class="fa fa-home"></i></a>
+      <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#navbar">
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+    </div>
+    <div class="navbar-collapse collapse" id="navbar">
+      <ul class="nav navbar-nav navbar-right">
+      
+        
+        <li><a href="../../post/">BLOG</a></li>
+        
+        <li><a href="../../projects/">PROJECTS</a></li>
+        
+        <li><a href="../../resume/">RESUME</a></li>
+        
+      
+      </ul>
+    </div>
+  </div>
+</nav>
+
+      <div class="container">
+        <div class="blog-post">
+          <h3>
+            <strong><a href="../../project/project2/">Project 2</a></strong>
+          </h3>
+        </div>
+ 
+<div class="blog-title">
+          <h4>
+         January 1, 0001 
+            &nbsp;&nbsp;
+            
+          </h4>
+        </div>
+
+        <div class="panel panel-default">
+          <div class="panel-body">
+            <div class="blogpost">
+              
+
+
+<div id="data-on-austin-coffee-shops" class="section level2">
+<h2><em>Data on Austin Coffee Shops</em></h2>
+</div>
+<div id="introduction" class="section level1">
+<h1>Introduction</h1>
+<p>I found data that reports on the yelp ratings of all of the coffee shops in Austin. The data accounts for the name of the shop, the number of total yelp reviews it has, its overall rating (out of 5 stars), and things that may have factored into its rating such as the quality of the coffee, the price, and the location, to name a few. These considerations are shown as proportions to how important it is to the overall rating. In the first section of code I also added in a column that will later be used as my binary variable. I made it so that coffee shops with a rating less than 4.2 stars would be considered a “low” rank, while the coffee shops that had a rating of 4.2 or greater were considered “high” ranking. I also took out a column called “vibe”, which was one of the factors, because it seems like a very subjective variable and it had a lot of NAs. There is a total of 78 observations and 16 variables.</p>
+<pre class="r"><code>library(tidyverse)
+
+coffee_data &lt;- read_csv(&quot;Coffee Data.csv&quot;)
+
+coffee_data %&gt;% head()</code></pre>
+<pre><code>## # A tibble: 6 x 16
+##   coffee_shop_name num_reviews rating coffee   tea   vibe internet   food
+##   &lt;chr&gt;                  &lt;dbl&gt;  &lt;dbl&gt;  &lt;dbl&gt; &lt;dbl&gt;  &lt;dbl&gt;    &lt;dbl&gt;  &lt;dbl&gt;
+## 1 Third Coast Cof…          56   4.82  0.75   0     0.161     0    0.0357
+## 2 My Sweet Austin           31   4.68  0      0    NA         0    1.06  
+## 3 Mary&#39;s Cafe              100   4.36  0.31   0     0.23      0    0.86  
+## 4 Anderson&#39;s Coff…         100   4.62  0.63   0.13  0.12      0    0     
+## 5 Irie Bean Coffe…         100   4.3   0.56   0.06  0.43      0.03 0.15  
+## 6 Friends &amp; Neigh…          29   4.55  0.379  0     0         0    0.310 
+## # … with 8 more variables: alcohol &lt;dbl&gt;, seating &lt;dbl&gt;, service &lt;dbl&gt;,
+## #   parking &lt;dbl&gt;, location &lt;dbl&gt;, local &lt;dbl&gt;, price &lt;dbl&gt;, hours &lt;dbl&gt;</code></pre>
+<pre class="r"><code>coffee_data &lt;- coffee_data %&gt;% mutate(rank = ifelse(rating &lt; 
+    4.2, &quot;low&quot;, &quot;high&quot;)) %&gt;% select(-vibe)
+coffee_data &lt;- coffee_data %&gt;% mutate()</code></pre>
+</div>
+<div id="manova-anova-and-t-tests" class="section level1">
+<h1>1: MANOVA, ANOVA, and T-Tests</h1>
+<pre class="r"><code># MANOVA test
+man1 &lt;- manova(cbind(num_reviews, rating) ~ rank, data = coffee_data)
+summary(man1)</code></pre>
+<pre><code>##           Df  Pillai approx F num Df den Df    Pr(&gt;F)    
+## rank       1 0.67119   76.549      2     75 &lt; 2.2e-16 ***
+## Residuals 76                                             
+## ---
+## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1</code></pre>
+<pre class="r"><code># Univariate ANOVA test
+summary.aov(man1)</code></pre>
+<pre><code>##  Response num_reviews :
+##             Df Sum Sq Mean Sq F value   Pr(&gt;F)   
+## rank         1  29799 29798.9  9.2322 0.003259 **
+## Residuals   76 245305  3227.7                    
+## ---
+## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1
+## 
+##  Response rating :
+##             Df Sum Sq Mean Sq F value    Pr(&gt;F)    
+## rank         1 6.2470  6.2470  155.14 &lt; 2.2e-16 ***
+## Residuals   76 3.0603  0.0403                      
+## ---
+## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1</code></pre>
+<pre class="r"><code>coffee_data %&gt;% group_by(rank) %&gt;% summarize(mean(rating), mean(num_reviews))</code></pre>
+<pre><code>## # A tibble: 2 x 3
+##   rank  `mean(rating)` `mean(num_reviews)`
+##   &lt;chr&gt;          &lt;dbl&gt;               &lt;dbl&gt;
+## 1 high            4.52                79.1
+## 2 low             3.96               118.</code></pre>
+<pre class="r"><code># Post-hoc t-test
+pairwise.t.test(coffee_data$num_reviews, coffee_data$rank, p.adj = &quot;none&quot;)</code></pre>
+<pre><code>## 
+##  Pairwise comparisons using t tests with pooled SD 
+## 
+## data:  coffee_data$num_reviews and coffee_data$rank 
+## 
+##     high  
+## low 0.0033
+## 
+## P value adjustment method: none</code></pre>
+<pre class="r"><code>pairwise.t.test(coffee_data$rating, coffee_data$rank, p.adj = &quot;none&quot;)</code></pre>
+<pre><code>## 
+##  Pairwise comparisons using t tests with pooled SD 
+## 
+## data:  coffee_data$rating and coffee_data$rank 
+## 
+##     high  
+## low &lt;2e-16
+## 
+## P value adjustment method: none</code></pre>
+<pre class="r"><code>1 - 0.95^5</code></pre>
+<pre><code>## [1] 0.2262191</code></pre>
+<pre class="r"><code>(1 - 0.95^5)/5</code></pre>
+<pre><code>## [1] 0.04524381</code></pre>
+<p><em>I ran one MANOVA test, 2 univariate ANOVA tests, and 2 t-tests, for a total of 5 tests. The probability of getting a type I error is about 0.05, so a bonferroni correction will adjust the p-values accordingly. After adjusting, the significance level was 0.045. Even still, all of the p-values were significant, and these were the results:</em></p>
+<p><em>A one-way MANOVA was conducted to determine the effect of rank (high or low) on two dependent variables (number of ratings and overall rating). Significant differences were found among the two rankings for at least one of the dependent variables– Pillai trace= .671 pseudo, F= 76.549, p &lt; 0.0001.</em></p>
+<p><em>Univariate ANOVAs for each dependent variable were conducted as follow-up tests to the MANOVA, using the Bonferroni method for controlling Type I error rates for multiple comparisons. The univariate ANOVAs for number of reviews and overall rating were also significant, F= 9.232 and p= 0.0033, and F= 155.14, p &lt; 0.0001, respectively.</em>
+<em>Post hoc analysis was performed conducting pairwise comparisons to determine which rank differed in number of reviews and rating. Both rankings were found to differ significantly from each other in terms of number of reviews and rating after adjusting for multiple comparisons (bonferroni α=.0.226/5=0.045).</em></p>
+<p><em>Some assumptions that may have not been met are homogeneity and no multicollinearity. I would actually imagine that multicollinearity definitely was not met since I created my categorical variable (rank) from a numberic variable in the dataset (rating).</em></p>
+</div>
+<div id="running-a-correlation-test" class="section level1">
+<h1>2: Running a Correlation Test</h1>
+<pre class="r"><code>coffee_data %&gt;% summarize(cor(rating, num_reviews, use = &quot;pair&quot;))</code></pre>
+<pre><code>## # A tibble: 1 x 1
+##   `cor(rating, num_reviews, use = &quot;pair&quot;)`
+##                                      &lt;dbl&gt;
+## 1                                   -0.401</code></pre>
+<pre class="r"><code>cor.test(coffee_data$rating, coffee_data$num_reviews)</code></pre>
+<pre><code>## 
+##  Pearson&#39;s product-moment correlation
+## 
+## data:  coffee_data$rating and coffee_data$num_reviews
+## t = -3.821, df = 76, p-value = 0.0002699
+## alternative hypothesis: true correlation is not equal to 0
+## 95 percent confidence interval:
+##  -0.5727916 -0.1964462
+## sample estimates:
+##        cor 
+## -0.4014284</code></pre>
+<pre class="r"><code>coffee_data %&gt;% ggplot(aes(rating, num_reviews)) + geom_point()</code></pre>
+<p><img src="../../project/project2_files/figure-html/unnamed-chunk-3-1.png" width="672" style="display: block; margin: auto;" />
+<em>H0: the number of reviews has no effect on the overall rating of a coffee shop.</em></p>
+<p><em>H1: the number of reviews does have an effect on the overall rating of a coffee shop.</em></p>
+<p><em>A correlation test was performed to determine whether or not number of reviews affects the Yelp rating received for a coffee shop. The results showed a correlation of -0.4 and a p-value of 0.00027, which means that we can reject the null hypothesis and say that the number of reviews does have an effect on the overall rating of a coffee shop. Based on the correlation and the plot, we can see that the more reviews a coffee shop has, the lower its rating will be and vice versa. This makes sense because the more reviews there are, the more ratings there are being factored into the coffee shop’s overall rating.</em></p>
+</div>
+<div id="linear-regression" class="section level1">
+<h1>3: Linear Regression</h1>
+<pre class="r"><code>library(tidyverse)
+library(lmtest)
+library(sandwich)
+# Centering the data
+mean_rating &lt;- coffee_data$rating - mean(coffee_data$rating, 
+    na.rm = T)
+mean_coffee &lt;- coffee_data$coffee - mean(coffee_data$coffee, 
+    na.rm = T)
+mean_food &lt;- coffee_data$food - mean(coffee_data$food, na.rm = T)
+
+# Multiple Regression
+multi_lm &lt;- lm(mean_rating ~ mean_coffee + mean_food, data = coffee_data)
+summary(multi_lm)</code></pre>
+<pre><code>## 
+## Call:
+## lm(formula = mean_rating ~ mean_coffee + mean_food, data = coffee_data)
+## 
+## Residuals:
+##      Min       1Q   Median       3Q      Max 
+## -0.82312 -0.26758 -0.00904  0.21788  0.84217 
+## 
+## Coefficients:
+##              Estimate Std. Error t value Pr(&gt;|t|)
+## (Intercept) 1.468e-16  3.961e-02   0.000    1.000
+## mean_coffee 1.945e-01  1.919e-01   1.013    0.314
+## mean_food   6.207e-02  1.664e-01   0.373    0.710
+## 
+## Residual standard error: 0.3498 on 75 degrees of freedom
+## Multiple R-squared:  0.0139, Adjusted R-squared:  -0.0124 
+## F-statistic: 0.5286 on 2 and 75 DF,  p-value: 0.5916</code></pre>
+<pre class="r"><code># Plots of the regressions
+multi_lm %&gt;% ggplot(aes(mean_rating, mean_coffee)) + geom_point() + 
+    geom_smooth(method = &quot;lm&quot;)</code></pre>
+<p><img src="../../project/project2_files/figure-html/unnamed-chunk-4-1.png" width="672" style="display: block; margin: auto;" /></p>
+<pre class="r"><code># Recomputing with robust SEs
+coeftest(multi_lm, vcov = vcovHC(multi_lm))</code></pre>
+<pre><code>## 
+## t test of coefficients:
+## 
+##               Estimate Std. Error t value Pr(&gt;|t|)
+## (Intercept) 1.4679e-16 4.0889e-02  0.0000   1.0000
+## mean_coffee 1.9446e-01 2.6091e-01  0.7453   0.4584
+## mean_food   6.2067e-02 2.1463e-01  0.2892   0.7732</code></pre>
+<p><em>I ran a multiple regression test showing the interaction of rating on coffee scores and food scores. When looking at them together, the results show that the mean rating when the coffee and food scores are 0 is also 0. However, there is a difference when looking at the coffee and food estimates. Together, for every 1 star increase in rating, there is a 0.195 increase in coffee rating (out of 1), and a 0.062 increase in food rating (out of 1). The adjusted R squared shows that 0% of variability in our outcomes are explained.</em></p>
+</div>
+<div id="linear-regression-bootstrapping" class="section level1">
+<h1>4: Linear Regression + Bootstrapping</h1>
+<pre class="r"><code># Multiple Regression
+multi_lm &lt;- lm(mean_rating ~ mean_coffee + mean_food, data = coffee_data)
+summary(multi_lm)</code></pre>
+<pre><code>## 
+## Call:
+## lm(formula = mean_rating ~ mean_coffee + mean_food, data = coffee_data)
+## 
+## Residuals:
+##      Min       1Q   Median       3Q      Max 
+## -0.82312 -0.26758 -0.00904  0.21788  0.84217 
+## 
+## Coefficients:
+##              Estimate Std. Error t value Pr(&gt;|t|)
+## (Intercept) 1.468e-16  3.961e-02   0.000    1.000
+## mean_coffee 1.945e-01  1.919e-01   1.013    0.314
+## mean_food   6.207e-02  1.664e-01   0.373    0.710
+## 
+## Residual standard error: 0.3498 on 75 degrees of freedom
+## Multiple R-squared:  0.0139, Adjusted R-squared:  -0.0124 
+## F-statistic: 0.5286 on 2 and 75 DF,  p-value: 0.5916</code></pre>
+<pre class="r"><code># bootstrapping
+multi_lm &lt;- lm(mean_rating ~ mean_coffee + mean_food, data = coffee_data)
+resids &lt;- multi_lm$residuals
+fitted &lt;- multi_lm$fitted.values
+
+resid_resamp &lt;- replicate(5000, {
+    new_resids &lt;- sample(resids, replace = TRUE)
+    coffee_data$new_y &lt;- fitted + new_resids
+    multi_lm &lt;- lm(new_y ~ mean_coffee + mean_food, data = coffee_data)
+    coef(multi_lm)
+})
+
+resid_resamp %&gt;% t %&gt;% as.data.frame %&gt;% summarize_all(sd)</code></pre>
+<pre><code>##   (Intercept) mean_coffee mean_food
+## 1   0.0385773   0.1889046 0.1626882</code></pre>
+<p><em>When comparing the robust SEs to the bootstrapped SEs, there is a slight difference. The bootstrapped SEs have a standard error of 0.039 (vs 0.041) for the intercept, 0.190 for mean_coffee (vs 0.261), and 0.164 for mean_food (vs 0.215).</em></p>
+</div>
+<div id="logistic-regression" class="section level1">
+<h1>5: Logistic Regression</h1>
+<pre class="r"><code>data &lt;- coffee_data %&gt;% mutate(y = ifelse(rank == &quot;high&quot;, 1, 
+    0))
+head(data)</code></pre>
+<pre><code>## # A tibble: 6 x 17
+##   coffee_shop_name num_reviews rating coffee   tea internet   food alcohol
+##   &lt;chr&gt;                  &lt;dbl&gt;  &lt;dbl&gt;  &lt;dbl&gt; &lt;dbl&gt;    &lt;dbl&gt;  &lt;dbl&gt;   &lt;dbl&gt;
+## 1 Third Coast Cof…          56   4.82  0.75   0        0    0.0357  0.0357
+## 2 My Sweet Austin           31   4.68  0      0        0    1.06    0     
+## 3 Mary&#39;s Cafe              100   4.36  0.31   0        0    0.86    0     
+## 4 Anderson&#39;s Coff…         100   4.62  0.63   0.13     0    0       0     
+## 5 Irie Bean Coffe…         100   4.3   0.56   0.06     0.03 0.15    0.14  
+## 6 Friends &amp; Neigh…          29   4.55  0.379  0        0    0.310   0.103 
+## # … with 9 more variables: seating &lt;dbl&gt;, service &lt;dbl&gt;, parking &lt;dbl&gt;,
+## #   location &lt;dbl&gt;, local &lt;dbl&gt;, price &lt;dbl&gt;, hours &lt;dbl&gt;, rank &lt;chr&gt;, y &lt;dbl&gt;</code></pre>
+<pre class="r"><code>logreg &lt;- glm(y ~ num_reviews + service, data = data, family = binomial(link = &quot;logit&quot;))
+coeftest(logreg)</code></pre>
+<pre><code>## 
+## z test of coefficients:
+## 
+##               Estimate Std. Error z value  Pr(&gt;|z|)    
+## (Intercept) -0.5822973  0.9661739 -0.6027 0.5467191    
+## num_reviews -0.0297626  0.0097735 -3.0452 0.0023250 ** 
+## service     10.9573298  2.8212533  3.8839 0.0001028 ***
+## ---
+## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1</code></pre>
+<pre class="r"><code>exp(coef(logreg))</code></pre>
+<pre><code>##  (Intercept)  num_reviews      service 
+## 5.586136e-01 9.706759e-01 5.737304e+04</code></pre>
+<pre class="r"><code>prob &lt;- predict(logreg, type = &quot;response&quot;)
+predicted &lt;- ifelse(prob &gt; 0.5, &quot;high&quot;, &quot;low&quot;)
+
+# Confusion matrix
+table(truth = coffee_data$rank, prediction = predicted) %&gt;% addmargins</code></pre>
+<pre><code>##       prediction
+## truth  high low Sum
+##   high   34   7  41
+##   low     9  28  37
+##   Sum    43  35  78</code></pre>
+<pre class="r"><code># Accuracy
+(34 + 28)/78</code></pre>
+<pre><code>## [1] 0.7948718</code></pre>
+<pre class="r"><code># sensitivity
+34/41</code></pre>
+<pre><code>## [1] 0.8292683</code></pre>
+<pre class="r"><code># specificity
+28/37</code></pre>
+<pre><code>## [1] 0.7567568</code></pre>
+<pre class="r"><code># precision
+34/43</code></pre>
+<pre><code>## [1] 0.7906977</code></pre>
+<pre class="r"><code># density plot
+coffee_data$logit &lt;- predict(logreg)
+ggplot(coffee_data, aes(logit, fill = rank)) + geom_density(alpha = 0.3) + 
+    geom_vline(xintercept = 0, lty = 2)</code></pre>
+<p><img src="../../project/project2_files/figure-html/unnamed-chunk-6-1.png" width="672" style="display: block; margin: auto;" /></p>
+<pre class="r"><code># roc curve
+library(plotROC)
+ROCplot &lt;- ggplot(coffee_data) + geom_roc(aes(d = rank, m = num_reviews), 
+    n.cuts = 0)
+ROCplot</code></pre>
+<p><img src="../../project/project2_files/figure-html/unnamed-chunk-6-2.png" width="672" style="display: block; margin: auto;" /></p>
+<pre class="r"><code>calc_auc(ROCplot)</code></pre>
+<pre><code>##   PANEL group       AUC
+## 1     1    -1 0.7083059</code></pre>
+<p><em>I made a logistic regression model to predict rank from number of ratings and the coffee shop’s service score (out of 1). The p-values were significant for the number of reviews and for the service. For a shop with 0 reviews and a service rating of zero, the odds that the rank will be high is 0.559. for every increase in the number of reviews, the odds that the rank= high goes up by a factor of 0.971. And for every increase in service rating, the odds that the rank is high goes up by a factor of 5737.04. This is a bit excessive because the service rating does not go higher than 1, but that’s still a pretty significant increase.</em></p>
+<p><em>The confusion matrix shows that the accuracy is at 79.487%, the sensitivity is at 82.927%, the specificity is at 75.676%, and the precision is at 79.07%. An ROC curve was made, and the AOC was 0.708. This means the area under the curve is about 70.8% of the graph, which means the ROC curve is just okay (the max AOC is 1 and the min is 0.5). This makes sense because there is a moderate amount of overlap in the density plot.</em></p>
+</div>
+<div id="logistic-regression-pt.-2" class="section level1">
+<h1>6: Logistic Regression Pt. 2</h1>
+<pre class="r"><code>data &lt;- coffee_data %&gt;% mutate(y = ifelse(rank == &quot;high&quot;, 1, 
+    0))
+data$rank &lt;- NULL
+
+fit &lt;- glm(y ~ rating + coffee + tea + internet + food + alcohol + 
+    seating + parking + location + local + price + hours, data = data, 
+    family = &quot;binomial&quot;)
+
+prob1 &lt;- predict(fit, type = &quot;response&quot;)
+predicted1 &lt;- ifelse(prob1 &gt; 0.5, &quot;high&quot;, &quot;low&quot;)
+
+class_diag(predicted1, data$y)</code></pre>
+<pre><code>##        acc sens spec      ppv auc
+## 1 0.525641    1    0 0.525641   0</code></pre>
+<pre class="r"><code>library(pROC)
+auc(data$y, prob1)</code></pre>
+<pre><code>## Area under the curve: 1</code></pre>
+<pre class="r"><code># repeated random sub-sampling CV
+fraction &lt;- 0.5
+train_n &lt;- floor(fraction * nrow(data))
+
+iter &lt;- 500
+
+diags &lt;- NULL
+for (i in 1:iter) {
+    train_index &lt;- sample(1:nrow(data), size = train_n)
+    train &lt;- data[train_index, ]
+    test &lt;- data[-train_index, ]
+    truth &lt;- test$y
+    
+    fit1 &lt;- glm(y ~ (.)^2, data = data, family = &quot;binomial&quot;)
+    
+    probs &lt;- predict(fit1, newdata = test, type = &quot;response&quot;)
+    predicted &lt;- ifelse(probs &gt; 0.5, &quot;high&quot;, &quot;low&quot;)
+    diags &lt;- rbind(diags, class_diag(predicted, truth))
+}
+
+summarize_all(diags, mean)</code></pre>
+<pre><code>##         acc sens spec       ppv auc
+## 1 0.5206154    1    0 0.5206154   0</code></pre>
+<pre class="r"><code># LASSO
+model.matrix(rank ~ ., data = coffee_data)[, -1]</code></pre>
+<pre><code>##    coffee_shop_nameAnderson&#39;s Coffee Company
+## 1                                          0
+##    coffee_shop_nameApanas Coffee &amp; Beer
+## 1                                     0
+##    coffee_shop_nameArturo&#39;s Underground Cafe coffee_shop_nameBennu Coffee
+## 1                                          0                            0
+##    coffee_shop_nameBrian&#39;s Brew coffee_shop_nameCafe Crème
+## 1                             0                          0
+##    coffee_shop_nameCafe Java coffee_shop_nameCafe Ruckus
+## 1                          0                           0
+##    coffee_shop_nameCaffe Medici coffee_shop_nameCenote
+## 1                             0                      0
+##    coffee_shop_nameCherrywood Coffeehouse coffee_shop_nameCorona Coffee
+## 1                                       0                             0
+##    coffee_shop_nameCream Whiskers coffee_shop_nameCuvee Coffee Bar
+## 1                               0                                0
+##    coffee_shop_nameDolce Neve coffee_shop_nameDominican Joe
+## 1                           0                             0
+##    coffee_shop_nameElixer Coffee coffee_shop_nameEmerald Tavern Games &amp; Cafe
+## 1                              0                                           0
+##    coffee_shop_nameEpoch Coffee
+## 1                             0
+##    coffee_shop_nameFat Cats Organic Coffee And Dessert
+## 1                                                    0
+##    coffee_shop_nameFigure 8 Coffee Purveyors coffee_shop_nameFlat Track Coffee
+## 1                                          0                                 0
+##    coffee_shop_nameFleet Coffee coffee_shop_nameFlightpath Coffeehouse
+## 1                             0                                      0
+##    coffee_shop_nameFlitch Coffee coffee_shop_nameFriends &amp; Neighbors
+## 1                              0                                   0
+##    coffee_shop_nameGenuine Joe coffee_shop_nameHalcyon
+## 1                            0                       0
+##    coffee_shop_nameHoly Grounds coffee_shop_nameHot Mama&#39;s Cafe
+## 1                             0                               0
+##    coffee_shop_nameHoundstooth Coffee coffee_shop_nameIrie Bean Coffee Bar
+## 1                                   0                                    0
+##    coffee_shop_nameJo&#39;s Coffee coffee_shop_nameJuan Pelota
+## 1                            0                           0
+##    coffee_shop_nameKick Butt Coffee Music &amp; Booze
+## 1                                               0
+##    coffee_shop_nameKowabunga Coffee coffee_shop_nameLa Patisserie
+## 1                                 0                             0
+##    coffee_shop_nameLa Tazza Fresca coffee_shop_nameLegend Coffee
+## 1                                0                             0
+##    coffee_shop_nameLive Oak Market
+## 1                                0
+##    coffee_shop_nameLola Savannah Coffee Downtown
+## 1                                              0
+##    coffee_shop_nameLola Savannah Coffee Lounge coffee_shop_nameLucky Lab Coffee
+## 1                                            0                                0
+##    coffee_shop_nameMañana Coffee &amp; Juice coffee_shop_nameMary&#39;s Cafe
+## 1                                      0                           0
+##    coffee_shop_nameMonkey Nest Coffee coffee_shop_nameMozart&#39;s Coffee Roasters
+## 1                                   0                                        0
+##    coffee_shop_nameMy Sweet Austin coffee_shop_nameOnce Over Coffee Bar
+## 1                                0                                    0
+##    coffee_shop_namePacha coffee_shop_namePatika coffee_shop_namePicnik Austin
+## 1                      0                      0                             0
+##    coffee_shop_nameQuack&#39;s 43rd Street Bakery
+## 1                                           0
+##    coffee_shop_nameRadio Coffee &amp; Beer coffee_shop_nameRussell&#39;s Bakery
+## 1                                    0                                0
+##    coffee_shop_nameSa-Ten coffee_shop_nameSeventh Flag Coffee Co
+## 1                       0                                      0
+##    coffee_shop_nameSister Coffee coffee_shop_nameSorrento&#39;s Coffee
+## 1                              0                                 0
+##    coffee_shop_nameStinson&#39;s coffee_shop_nameStrange Brew, Austin Coffee
+## 1                          0                                           0
+##    coffee_shop_nameSummer Moon Coffee Bar coffee_shop_nameSummermoon Coffee Bar
+## 1                                       0                                     0
+##    coffee_shop_nameTea Haus coffee_shop_nameTeo coffee_shop_nameThe Buzz Mill
+## 1                         0                   0                             0
+##    coffee_shop_nameThe Factory - Cafe With a Soul
+## 1                                               0
+##    coffee_shop_nameThe Hideout Coffeehouse
+## 1                                        0
+##    coffee_shop_nameThe Marvelous Vintage Tea Party Co.
+## 1                                                    0
+##    coffee_shop_nameThe Steeping Room
+## 1                                  0
+##    coffee_shop_nameThird Coast Coffee Roasting Company
+## 1                                                    1
+##    coffee_shop_nameThunderbird Coffee coffee_shop_nameTOMS
+## 1                                   0                    0
+##    coffee_shop_nameTrianon Coffee coffee_shop_nameTuscany At 360
+## 1                               0                              0
+##    coffee_shop_nameVenezia Italian Gelato coffee_shop_nameVintage Heart Coffee
+## 1                                       0                                    0
+##    num_reviews   rating    coffee          tea    internet       food
+## 1           56 4.821429 0.7500000  0.000000000  0.00000000 0.03571429
+##        alcohol     seating    service      parking    location        local
+## 1   0.03571429  0.00000000 0.21428571  0.053571429  0.03571429  0.071428571
+##          price       hours       logit
+## 1   0.17857143  0.03571429  0.09899628
+##  [ reached getOption(&quot;max.print&quot;) -- omitted 77 rows ]</code></pre>
+<pre class="r"><code>library(glmnet)
+y &lt;- as.matrix(coffee_data$rank)  #grab response
+x &lt;- model.matrix(rank ~ ., data = coffee_data)[, -1]  #grab predictors
+x &lt;- scale(x)
+
+cv &lt;- cv.glmnet(x, y, family = &quot;binomial&quot;)
+lasso &lt;- glmnet(x, y, family = &quot;binomial&quot;, lambda = cv$lambda.1se)
+coef(lasso)</code></pre>
+<pre><code>## 93 x 1 sparse Matrix of class &quot;dgCMatrix&quot;
+##                                                              s0
+## (Intercept)                                         -0.70365563
+## coffee_shop_nameAnderson&#39;s Coffee Company            .         
+## coffee_shop_nameApanas Coffee &amp; Beer                 .         
+## coffee_shop_nameArturo&#39;s Underground Cafe           -0.04234099
+## coffee_shop_nameBennu Coffee                         0.10940581
+## coffee_shop_nameBrian&#39;s Brew                         .         
+## coffee_shop_nameCafe Crème                           .         
+## coffee_shop_nameCafe Java                            .         
+## coffee_shop_nameCafe Ruckus                          .         
+## coffee_shop_nameCaffe Medici                         0.05840418
+## coffee_shop_nameCenote                               .         
+## coffee_shop_nameCherrywood Coffeehouse               .         
+## coffee_shop_nameCorona Coffee                        .         
+## coffee_shop_nameCream Whiskers                       .         
+## coffee_shop_nameCuvee Coffee Bar                     .         
+## coffee_shop_nameDolce Neve                           .         
+## coffee_shop_nameDominican Joe                        .         
+## coffee_shop_nameElixer Coffee                       -0.03533660
+## coffee_shop_nameEmerald Tavern Games &amp; Cafe          .         
+## coffee_shop_nameEpoch Coffee                         .         
+## coffee_shop_nameFat Cats Organic Coffee And Dessert  .         
+## coffee_shop_nameFigure 8 Coffee Purveyors            .         
+## coffee_shop_nameFlat Track Coffee                    .         
+## coffee_shop_nameFleet Coffee                         .         
+## coffee_shop_nameFlightpath Coffeehouse              -0.11586267
+## coffee_shop_nameFlitch Coffee                        .         
+## coffee_shop_nameFriends &amp; Neighbors                  .         
+## coffee_shop_nameGenuine Joe                          .         
+## coffee_shop_nameHalcyon                              .         
+## coffee_shop_nameHoly Grounds                         .         
+## coffee_shop_nameHot Mama&#39;s Cafe                     -0.02677907
+## coffee_shop_nameHoundstooth Coffee                   0.19691093
+## coffee_shop_nameIrie Bean Coffee Bar                 .         
+## coffee_shop_nameJo&#39;s Coffee                          0.15023138
+## coffee_shop_nameJuan Pelota                          .         
+## coffee_shop_nameKick Butt Coffee Music &amp; Booze       .         
+## coffee_shop_nameKowabunga Coffee                     .         
+## coffee_shop_nameLa Patisserie                        .         
+## coffee_shop_nameLa Tazza Fresca                      .         
+## coffee_shop_nameLegend Coffee                        .         
+## coffee_shop_nameLive Oak Market                      .         
+## coffee_shop_nameLola Savannah Coffee Downtown        .         
+## coffee_shop_nameLola Savannah Coffee Lounge          .         
+## coffee_shop_nameLucky Lab Coffee                     .         
+## coffee_shop_nameMañana Coffee &amp; Juice                .         
+## coffee_shop_nameMary&#39;s Cafe                          .         
+## coffee_shop_nameMonkey Nest Coffee                   .         
+## coffee_shop_nameMozart&#39;s Coffee Roasters             .         
+## coffee_shop_nameMy Sweet Austin                      .         
+## coffee_shop_nameOnce Over Coffee Bar                 .         
+## coffee_shop_namePacha                                .         
+## coffee_shop_namePatika                               .         
+## coffee_shop_namePicnik Austin                        0.09144789
+## coffee_shop_nameQuack&#39;s 43rd Street Bakery           0.15402033
+## coffee_shop_nameRadio Coffee &amp; Beer                  .         
+## coffee_shop_nameRussell&#39;s Bakery                     .         
+## coffee_shop_nameSa-Ten                              -0.04934927
+## coffee_shop_nameSeventh Flag Coffee Co               .         
+## coffee_shop_nameSister Coffee                        .         
+## coffee_shop_nameSorrento&#39;s Coffee                   -0.08976577
+## coffee_shop_nameStinson&#39;s                            .         
+## coffee_shop_nameStrange Brew, Austin Coffee          .         
+## coffee_shop_nameSummer Moon Coffee Bar               .         
+## coffee_shop_nameSummermoon Coffee Bar                .         
+## coffee_shop_nameTea Haus                             0.05917916
+## coffee_shop_nameTeo                                  .         
+## coffee_shop_nameThe Buzz Mill                        .         
+## coffee_shop_nameThe Factory - Cafe With a Soul       .         
+## coffee_shop_nameThe Hideout Coffeehouse              .         
+## coffee_shop_nameThe Marvelous Vintage Tea Party Co.  .         
+## coffee_shop_nameThe Steeping Room                    .         
+## coffee_shop_nameThird Coast Coffee Roasting Company  .         
+## coffee_shop_nameThunderbird Coffee                   .         
+## coffee_shop_nameTOMS                                -0.17267597
+## coffee_shop_nameTrianon Coffee                       .         
+## coffee_shop_nameTuscany At 360                       .         
+## coffee_shop_nameVenezia Italian Gelato               .         
+## coffee_shop_nameVintage Heart Coffee                 0.19091186
+## num_reviews                                          .         
+## rating                                              -5.38512728
+## coffee                                               .         
+## tea                                                  .         
+## internet                                             .         
+## food                                                 .         
+## alcohol                                              .         
+## seating                                              .         
+## service                                             -0.34465396
+## parking                                              .         
+## location                                             .         
+## local                                                .         
+## price                                                .         
+## hours                                                .         
+## logit                                               -0.17517516</code></pre>
+<pre class="r"><code>{
+    plot(cv$glmnet.fit, &quot;lambda&quot;, label = TRUE)
+    abline(v = log(cv$lambda.1se))
+    abline(v = log(cv$lambda.min), lty = 2)
+}</code></pre>
+<p><img src="../../project/project2_files/figure-html/unnamed-chunk-7-1.png" width="672" style="display: block; margin: auto;" /></p>
+<pre class="r"><code># redoing CV
+k = 10
+
+data &lt;- coffee_data %&gt;% sample_frac  #put rows of dataset in random order
+folds &lt;- ntile(1:nrow(data), n = 10)  #create fold labels
+
+diags &lt;- NULL
+for (i in 1:k) {
+    train &lt;- data[folds != i, ]  #create training set (all but fold i)
+    test &lt;- data[folds == i, ]  #create test set (just fold i)
+    truth &lt;- test$rank  #save truth labels from fold i
+    train &lt;- train %&gt;% mutate(y = ifelse(rank == &quot;high&quot;, 1, 0))
+    fit &lt;- glm(y ~ rating + service, data = train, family = &quot;binomial&quot;)
+    probs &lt;- predict(fit, newdata = test, type = &quot;response&quot;)
+    
+    diags &lt;- rbind(diags, class_diag(probs, truth))
+}
+
+diags %&gt;% summarize_all(mean)</code></pre>
+<pre><code>##     acc sens spec        ppv auc
+## 1 0.025 0.05    0 0.03333333   0</code></pre>
+</div>
+
+            
+        <hr>         <div class="related-posts">
+                <h5>Related Posts</h5>
+                
+              </div> 
+            </div>
+          </div>
+
+   <hr>  <div class="disqus">
+  <div id="disqus_thread"></div>
+  <script type="text/javascript">
+
+    (function() {
+      
+      
+      if (window.location.hostname == "localhost")
+        return;
+
+      var disqus_shortname = '';
+      var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+      dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+      (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    })();
+  </script>
+  <noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+  <a href="http://disqus.com/" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+</div> 
+        </div>
+      </div>
+    </div>
+
+    
+    <footer>
+  <div id="footer">
+    <div class="container">
+      <p class="text-muted">&copy; All rights reserved. Powered by <a href="https://gohugo.io/">Hugo</a> and
+      <a href="http://www.github.com/nurlansu/hugo-sustain/">sustain</a> with ♥</p>
+    </div>
+  </div>
+</footer>
+<div class="footer"></div>
+
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
+<script src="../../js/docs.min.js"></script>
+<script src="../../js/main.js"></script>
+
+<script src="../../js/ie10-viewport-bug-workaround.js"></script>
+
+
+    
+  </body>
+</html>
